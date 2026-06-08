@@ -24,18 +24,10 @@ pub enum CycleError {
 
 impl Cpu {
     pub fn cycle(&mut self, bus: &Bus) -> Result<CycleResult, CycleError> {
-        // Read opcode
-        let opcode = bus
-            .read(self.registers.pc)
-            .map_err(|bus_error: BusError| CycleError::BusReadError(bus_error))?;
-
-        // Increment PC
-        self.registers.increment_pc();
-
         // Try decoding instruction
-        let instruction = self.decode(opcode)?;
+        let instruction = self.fetch_instruction(bus)?;
         (instruction.execute)(self, bus)?;
-
+        
         Ok(CycleResult::Success)
     }
 
@@ -44,7 +36,15 @@ impl Cpu {
     }
 
     // Handles decoding and finding a relevant instruction in the instruction table (todo() pages)
-    fn decode(&self, opcode: u8) -> Result<&Instruction, CycleError> {
+    fn fetch_instruction(&mut self, bus: &Bus) -> Result<&Instruction, CycleError> {
+        // Read opcode
+        let opcode = bus
+            .read(self.registers.current_pc())
+            .map_err(|bus_error: BusError| CycleError::BusReadError(bus_error))?;
+
+        // Increment PC
+        self.registers.increment_pc();
+
         let instruction = &INSTRUCTIONS[opcode as usize];
         Ok(instruction)
     }
@@ -53,7 +53,7 @@ impl Cpu {
 impl Cpu {
     pub fn new() -> Self {
         Cpu {
-            registers: CpuRegisters::init(),
+            registers: CpuRegisters::new(),
             alu: Alu,
         }
     }

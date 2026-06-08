@@ -11,6 +11,9 @@ fn main() {
     bus.load_rom_raw(&[
         0x00,
         0x3E, 0xAF,
+        0x0E, 0xDD,
+        0x06, 0x23,
+        0xFF
     ]);
 
     println!("Loaded rom");
@@ -19,7 +22,8 @@ fn main() {
     loop {
         match cpu.cycle(&bus) {
             Ok(_) => {
-                cpu.dump()
+                cpu.dump();
+                println!("\n")
             }
             Err(cycle_error) => {
                 println!("CPU cycle error: {:?}, exiting...", cycle_error);
