@@ -54,8 +54,16 @@ impl CpuRegisters {
         self.pc = self.pc.wrapping_add(1)
     }
 
+    pub fn get_a(&self) -> u8 {
+        self.a
+    }
+
     pub fn set_a(&mut self, value: u8) {
         self.a = value
+    }
+
+    pub fn get_b(&self) -> u8 {
+        self.bc.to_be_bytes()[0]
     }
 
     pub fn set_b(&mut self, value: u8) {
@@ -63,9 +71,17 @@ impl CpuRegisters {
         self.bc = (self.bc & 0x00FF) | b_value
     }
 
+    pub fn get_c(&self) -> u8 {
+        self.bc.to_be_bytes()[1]
+    }
+
     pub fn set_c(&mut self, value: u8) {
         let c_value = u16::from(value);
         self.bc = (self.bc & 0xFF00) | c_value
+    }
+
+    pub fn get_d(&self) -> u8 {
+        self.de.to_be_bytes()[0]
     }
 
     pub fn set_d(&mut self, value: u8) {
@@ -73,14 +89,26 @@ impl CpuRegisters {
         self.de = (self.de & 0x00FF) | d_value
     }
 
+    pub fn get_e(&self) -> u8 {
+        self.de.to_be_bytes()[1]
+    }
+
     pub fn set_e(&mut self, value: u8) {
         let e_value = u16::from(value);
         self.de = (self.de & 0xFF00) | e_value
     }
 
+    pub fn get_h(&self) -> u8 {
+        self.hl.to_be_bytes()[0]
+    }
+
     pub fn set_h(&mut self, value: u8) {
         let h_value = u16::from(value) << u8::BITS;
         self.hl = (self.hl & 0x00FF) | h_value
+    }
+
+    pub fn get_l(&self) -> u8 {
+        self.hl.to_be_bytes()[1]
     }
 
     pub fn set_l(&mut self, value: u8) {

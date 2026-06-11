@@ -26,8 +26,8 @@ impl Cpu {
     pub fn cycle(&mut self, bus: &Bus) -> Result<CycleResult, CycleError> {
         // Try decoding instruction
         let instruction = self.fetch_instruction(bus)?;
-        (instruction.execute)(self, bus)?;
-        
+        instruction.run(self, bus)?;
+
         Ok(CycleResult::Success)
     }
 
@@ -36,7 +36,7 @@ impl Cpu {
     }
 
     // Handles decoding and finding a relevant instruction in the instruction table (todo() pages)
-    fn fetch_instruction(&mut self, bus: &Bus) -> Result<&Instruction, CycleError> {
+    fn fetch_instruction(&mut self, bus: &Bus) -> Result<&'static Instruction, CycleError> {
         // Read opcode
         let opcode = bus
             .read(self.registers.current_pc())
