@@ -75,7 +75,7 @@ const LD_L_B: u8 = 0x68;
 const LD_L_C: u8 = 0x69;
 const LD_L_D: u8 = 0x6A;
 const LD_L_E: u8 = 0x6B;
-const LD_L_H: u8 = 0x65;
+const LD_L_H: u8 = 0x6C;
 
 // LD r,n
 const LD_A_N: u8 = 0x3E;
@@ -409,6 +409,55 @@ const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         execute: |cpu, _, logger| {
             logger("LD H, L", &[]);
             cpu.registers.set_h(cpu.registers.get_l());
+            Ok(())
+        },
+    };
+
+    instructions[LD_L_A as usize] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, A", &[]);
+            cpu.registers.set_l(cpu.registers.get_a());
+            Ok(())
+        },
+    };
+    instructions[LD_L_B as usize] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, B", &[]);
+            cpu.registers.set_l(cpu.registers.get_b());
+            Ok(())
+        },
+    };
+    instructions[LD_L_C as usize] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, C", &[]);
+            cpu.registers.set_l(cpu.registers.get_c());
+            Ok(())
+        },
+    };
+    instructions[LD_L_D as usize] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, D", &[]);
+            cpu.registers.set_l(cpu.registers.get_d());
+            Ok(())
+        },
+    };
+    instructions[LD_L_E as usize] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, E", &[]);
+            cpu.registers.set_l(cpu.registers.get_e());
+            Ok(())
+        },
+    };
+    instructions[LD_L_H as usize] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, H", &[]);
+            cpu.registers.set_l(cpu.registers.get_h());
             Ok(())
         },
     };
