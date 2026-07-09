@@ -116,6 +116,10 @@ impl CpuRegisters {
         self.hl = (self.hl & 0xFF00) | l_value
     }
 
+    pub fn get_hl(&self) -> u16 {
+        self.hl
+    }
+
     pub fn dump(&self) {
         println!("CpuRegisters dump state:\n{self}");
     }

@@ -86,6 +86,15 @@ const LD_E_N: u8 = 0x1E;
 const LD_H_N: u8 = 0x26;
 const LD_L_N: u8 = 0x2E;
 
+// LD r, (HL)
+const LD_A__HL_: u8 = 0x7E;
+const LD_B__HL_: u8 = 0x46;
+const LD_C__HL_: u8 = 0x4E;
+const LD_D__HL_: u8 = 0x56;
+const LD_E__HL_: u8 = 0x5E;
+const LD_H__HL_: u8 = 0x66;
+const LD_L__HL_: u8 = 0x6E;
+
 const UNSUPPORTED_INSTRUCTION: Instruction = Instruction {
     cycles: Cycles {
         m_cycles: 0,
@@ -99,6 +108,7 @@ const fn build_instruction_map() -> [Instruction; 256] {
 
     build_ld_r_r_set(&mut instructions);
     build_ld_r_n_set(&mut instructions);
+    build_ld_r__hl__set(&mut instructions);
 
     instructions[NOP as usize] = Instruction {
         cycles: Cycles {
@@ -534,8 +544,33 @@ const fn build_ld_r_n_set(instructions: &mut [Instruction]) {
         execute: |cpu, bus, logger| {
             let integer = bus.read_from_pc(cpu)?;
 
-            logger("LD L, ", &[&integer.to_hex_string()]);
+            logger("LD L,", &[&integer.to_hex_string()]);
             cpu.registers.set_l(integer);
+            Ok(())
+        },
+    };
+}
+
+const fn build_ld_r__hl__set(instructions: &mut [Instruction]) {
+    const LD_R__HL__CYCLES: Cycles = Cycles {
+        m_cycles: 2,
+        t_states: 7,
+    };
+
+    instructions[LD_A__HL_ as usize] = Instruction {
+        cycles: LD_R__HL__CYCLES,
+        execute: |cpu, bus, logger| {
+            let addr = cpu.registers.get_hl();
+            let integer = bus.read_in_cycle(addr)?;
+
+            logger(
+                "LD A,",
+                &[
+                    &format!("({}) ->", addr.to_hex_string()),
+                    &integer.to_hex_string(),
+                ],
+            );
+            cpu.registers.set_a(integer);
             Ok(())
         },
     };
@@ -545,7 +580,10 @@ trait ToHexString {
     fn to_hex_string(&self) -> String;
 }
 
-impl ToHexString for u8 {
+impl<T> ToHexString for T
+where
+    T: std::fmt::UpperHex,
+{
     fn to_hex_string(&self) -> String {
         format!("0x{:0X}", self)
     }
@@ -553,14 +591,18 @@ impl ToHexString for u8 {
 
 trait ReadableFromPc {
     fn read_from_pc(&self, cpu: &mut Cpu) -> Result<u8, CycleError>;
+    fn read_in_cycle(&self, addr: u16) -> Result<u8, CycleError>;
 }
 
 impl ReadableFromPc for Bus {
     fn read_from_pc(&self, cpu: &mut Cpu) -> Result<u8, CycleError> {
-        let value = self
-            .read(cpu.registers.current_pc())
-            .map_err(CycleError::BusReadError)?;
+        let value = self.read_in_cycle(cpu.registers.current_pc())?;
         cpu.registers.increment_pc();
+        Ok(value)
+    }
+
+    fn read_in_cycle(&self, addr: u16) -> Result<u8, CycleError> {
+        let value = self.read(addr).map_err(CycleError::BusReadError)?;
         Ok(value)
     }
 }
