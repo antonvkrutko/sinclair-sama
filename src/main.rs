@@ -1,5 +1,6 @@
 mod bus;
 mod z80;
+mod utils;
 
 use bus::Bus;
 use z80::Cpu;

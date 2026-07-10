@@ -1,11 +1,12 @@
 use crate::bus::{Bus, BusError};
-use crate::z80::instructions::{INSTRUCTIONS, Instruction};
+use crate::z80::instructions::{Instruction, INSTRUCTIONS};
 use alu::Alu;
 use cpu_registers::CpuRegisters;
 
 mod alu;
 mod cpu_registers;
 mod instructions;
+mod utils;
 
 pub struct Cpu {
     registers: CpuRegisters,

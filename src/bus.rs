@@ -1,30 +1,68 @@
-use std::fmt::format;
+use crate::bus::BusError::{AccessError, AddressOutOfRange};
+use crate::bus::Region::{Ram, Rom};
 
+const ROM_SIZE: usize = 1024;
+const RAM_SIZE: usize = 1024;
+
+///
+/// Z80 assumes that the memory structure is Linear. ROM -> RAM.
+///
 pub struct Bus {
-    rom: [u8; 1024], // 1kb
+    rom: [u8; ROM_SIZE], // 1kb
+    ram: [u8; RAM_SIZE], // 1kb
 }
 
 #[derive(Debug)]
 pub enum BusError {
-    AddressOutOfRange
+    AddressOutOfRange,
+    AccessError,
+}
+
+enum Region {
+    Rom,
+    Ram,
 }
 
 impl Bus {
     pub fn new() -> Self {
-        Bus { rom: [0; 1024] }
+        Bus {
+            rom: [0; ROM_SIZE],
+            ram: [0; RAM_SIZE],
+        }
     }
 
     pub fn read(&self, addr: u16) -> Result<u8, BusError> {
         let addr = usize::from(addr);
-        if addr < self.rom.len() {
-            Ok(self.rom[addr])
-        } else {
-            Err(BusError::AddressOutOfRange)
+        let (addr, region) = self.translate_address(addr)?;
+        Ok(match region {
+            Rom => self.rom[addr],
+            Ram => self.ram[addr],
+        })
+    }
+
+    pub fn write(&mut self, addr: u16, data: u8) -> Result<(), BusError> {
+        let addr = usize::from(addr);
+        let (addr, region) = self.translate_address(addr)?;
+        match region {
+            Rom => Err(AccessError),
+            Ram => {
+                self.ram[addr] = data;
+                Ok(())
+            }
         }
     }
 
-    pub fn write(&mut self, addr: u16, data: u8) {
-        todo!()
+    fn translate_address(&self, addr: usize) -> Result<(usize, Region), BusError> {
+        if addr > ROM_SIZE + RAM_SIZE {
+            return Err(AddressOutOfRange);
+        }
+
+        if addr < ROM_SIZE {
+            return Ok((addr, Rom));
+        }
+
+        let ram_addr = addr - ROM_SIZE;
+        Ok((ram_addr, Ram))
     }
 
     pub fn load_rom_raw(&mut self, data: &[u8]) {
