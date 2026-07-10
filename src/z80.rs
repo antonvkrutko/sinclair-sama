@@ -24,6 +24,13 @@ pub enum CycleError {
 }
 
 impl Cpu {
+    pub fn new() -> Self {
+        Cpu {
+            registers: CpuRegisters::new(),
+            alu: Alu,
+        }
+    }
+
     pub fn cycle(&mut self, bus: &Bus) -> Result<CycleResult, CycleError> {
         // Try decoding instruction
         let instruction = self.fetch_instruction(bus)?;
@@ -48,14 +55,5 @@ impl Cpu {
 
         let instruction = &INSTRUCTIONS[opcode as usize];
         Ok(instruction)
-    }
-}
-
-impl Cpu {
-    pub fn new() -> Self {
-        Cpu {
-            registers: CpuRegisters::new(),
-            alu: Alu,
-        }
     }
 }

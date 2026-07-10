@@ -53,7 +53,7 @@ impl Bus {
     }
 
     fn translate_address(&self, addr: usize) -> Result<(usize, Region), BusError> {
-        if addr > ROM_SIZE + RAM_SIZE {
+        if addr >= ROM_SIZE + RAM_SIZE {
             return Err(AddressOutOfRange);
         }
 
