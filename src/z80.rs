@@ -1,5 +1,5 @@
 use crate::bus::{Bus, BusError};
-use crate::z80::instructions::{Instruction, INSTRUCTIONS};
+use crate::z80::instructions::Instruction;
 use alu::Alu;
 use cpu_registers::CpuRegisters;
 
@@ -48,12 +48,12 @@ impl Cpu {
         // Read opcode
         let opcode = bus
             .read(self.registers.current_pc())
-            .map_err(|bus_error: BusError| CycleError::BusReadError(bus_error))?;
+            .map_err(CycleError::BusReadError)?;
 
         // Increment PC
         self.registers.increment_pc();
 
-        let instruction = &INSTRUCTIONS[opcode as usize];
-        Ok(instruction)
+        // Decode instruction
+        Instruction::decode(opcode, self, bus)
     }
 }
