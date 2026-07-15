@@ -1,62 +1,26 @@
+use crate::z80::instructions::registers::{A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG};
 use crate::z80::instructions::{Cycles, Instruction};
+const fn opcode(reg_r: u8, reg_r_: u8) -> usize {
+    const LD_R_R_OPCODE_PREFIX: u8 = 0x01;
+    ((LD_R_R_OPCODE_PREFIX << 6) | (reg_r << 3) | reg_r_) as usize
+}
 
 // LR r, r'
-const LD_A_B: u8 = 0x78;
-const LD_A_C: u8 = 0x79;
-const LD_A_D: u8 = 0x7A;
-const LD_A_E: u8 = 0x7B;
-const LD_A_H: u8 = 0x7C;
-const LD_A_L: u8 = 0x7D;
-
-const LD_B_A: u8 = 0x47;
-const LD_B_C: u8 = 0x41;
-const LD_B_D: u8 = 0x42;
-const LD_B_E: u8 = 0x43;
-const LD_B_H: u8 = 0x44;
-const LD_B_L: u8 = 0x45;
-
-const LD_C_A: u8 = 0x4F;
-const LD_C_B: u8 = 0x49;
-const LD_C_D: u8 = 0x4A;
-const LD_C_E: u8 = 0x4B;
-const LD_C_H: u8 = 0x4C;
-const LD_C_L: u8 = 0x4D;
-
-const LD_D_A: u8 = 0x57;
-const LD_D_B: u8 = 0x50;
-const LD_D_C: u8 = 0x51;
-const LD_D_E: u8 = 0x53;
-const LD_D_H: u8 = 0x54;
-const LD_D_L: u8 = 0x55;
-
-const LD_E_A: u8 = 0x5F;
-const LD_E_B: u8 = 0x58;
-const LD_E_C: u8 = 0x59;
-const LD_E_D: u8 = 0x5A;
-const LD_E_H: u8 = 0x5C;
-const LD_E_L: u8 = 0x5D;
-
-const LD_H_A: u8 = 0x67;
-const LD_H_B: u8 = 0x60;
-const LD_H_C: u8 = 0x61;
-const LD_H_D: u8 = 0x62;
-const LD_H_E: u8 = 0x63;
-const LD_H_L: u8 = 0x65;
-
-const LD_L_A: u8 = 0x6F;
-const LD_L_B: u8 = 0x68;
-const LD_L_C: u8 = 0x69;
-const LD_L_D: u8 = 0x6A;
-const LD_L_E: u8 = 0x6B;
-const LD_L_H: u8 = 0x6C;
-
 pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
     const LD_R_R_CYCLES: Cycles = Cycles {
         m_cycles: 1,
         t_states: 4,
     };
 
-    instructions[LD_A_B as usize] = Instruction {
+    instructions[opcode(A_REG, A_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD A, A", &[]);
+            cpu.registers.set_a(cpu.registers.get_a());
+            Ok(())
+        },
+    };
+    instructions[opcode(A_REG, B_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD A, B", &[]);
@@ -64,7 +28,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_A_C as usize] = Instruction {
+    instructions[opcode(A_REG, C_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD A, C", &[]);
@@ -72,7 +36,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_A_D as usize] = Instruction {
+    instructions[opcode(A_REG, D_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD A, D", &[]);
@@ -80,7 +44,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_A_E as usize] = Instruction {
+    instructions[opcode(A_REG, E_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD A, E", &[]);
@@ -88,7 +52,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_A_H as usize] = Instruction {
+    instructions[opcode(A_REG, H_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD A, H", &[]);
@@ -96,7 +60,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_A_L as usize] = Instruction {
+    instructions[opcode(A_REG, L_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD A, L", &[]);
@@ -105,7 +69,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         },
     };
 
-    instructions[LD_B_A as usize] = Instruction {
+    instructions[opcode(B_REG, A_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD B, A", &[]);
@@ -113,7 +77,15 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_B_C as usize] = Instruction {
+    instructions[opcode(B_REG, B_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD B, B", &[]);
+            cpu.registers.set_b(cpu.registers.get_b());
+            Ok(())
+        },
+    };
+    instructions[opcode(B_REG, C_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD B, C", &[]);
@@ -121,7 +93,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_B_D as usize] = Instruction {
+    instructions[opcode(B_REG, D_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD B, D", &[]);
@@ -129,7 +101,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_B_E as usize] = Instruction {
+    instructions[opcode(B_REG, E_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD B, E", &[]);
@@ -137,7 +109,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_B_H as usize] = Instruction {
+    instructions[opcode(B_REG, H_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD B, H", &[]);
@@ -145,7 +117,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_B_L as usize] = Instruction {
+    instructions[opcode(B_REG, L_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD B, L", &[]);
@@ -154,7 +126,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         },
     };
 
-    instructions[LD_C_A as usize] = Instruction {
+    instructions[opcode(C_REG, A_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD C, A", &[]);
@@ -162,7 +134,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_C_B as usize] = Instruction {
+    instructions[opcode(C_REG, B_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD C, B", &[]);
@@ -170,7 +142,15 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_C_D as usize] = Instruction {
+    instructions[opcode(C_REG, C_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD C, C", &[]);
+            cpu.registers.set_c(cpu.registers.get_c());
+            Ok(())
+        },
+    };
+    instructions[opcode(C_REG, D_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD C, D", &[]);
@@ -178,7 +158,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_C_E as usize] = Instruction {
+    instructions[opcode(C_REG, E_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD C, E", &[]);
@@ -186,7 +166,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_C_H as usize] = Instruction {
+    instructions[opcode(C_REG, H_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD C, H", &[]);
@@ -194,7 +174,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_C_L as usize] = Instruction {
+    instructions[opcode(C_REG, L_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD C, L", &[]);
@@ -203,7 +183,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         },
     };
 
-    instructions[LD_D_A as usize] = Instruction {
+    instructions[opcode(D_REG, A_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD D, A", &[]);
@@ -211,7 +191,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_D_B as usize] = Instruction {
+    instructions[opcode(D_REG, B_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD D, B", &[]);
@@ -219,7 +199,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_D_C as usize] = Instruction {
+    instructions[opcode(D_REG, C_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD D, C", &[]);
@@ -227,7 +207,15 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_D_E as usize] = Instruction {
+    instructions[opcode(D_REG, D_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD D, D", &[]);
+            cpu.registers.set_d(cpu.registers.get_d());
+            Ok(())
+        },
+    };
+    instructions[opcode(D_REG, E_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD D, E", &[]);
@@ -235,7 +223,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_D_H as usize] = Instruction {
+    instructions[opcode(D_REG, H_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD D, H", &[]);
@@ -243,7 +231,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_D_L as usize] = Instruction {
+    instructions[opcode(D_REG, L_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD D, L", &[]);
@@ -252,7 +240,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         },
     };
 
-    instructions[LD_E_A as usize] = Instruction {
+    instructions[opcode(E_REG, A_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD E, A", &[]);
@@ -260,7 +248,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_E_B as usize] = Instruction {
+    instructions[opcode(E_REG, B_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD E, B", &[]);
@@ -268,7 +256,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_E_C as usize] = Instruction {
+    instructions[opcode(E_REG, C_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD E, C", &[]);
@@ -276,7 +264,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_E_D as usize] = Instruction {
+    instructions[opcode(E_REG, D_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD E, D", &[]);
@@ -284,7 +272,15 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_E_H as usize] = Instruction {
+    instructions[opcode(E_REG, E_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD E, E", &[]);
+            cpu.registers.set_e(cpu.registers.get_e());
+            Ok(())
+        },
+    };
+    instructions[opcode(E_REG, H_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD E, H", &[]);
@@ -292,7 +288,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_E_L as usize] = Instruction {
+    instructions[opcode(E_REG, L_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD E, L", &[]);
@@ -301,7 +297,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         },
     };
 
-    instructions[LD_H_A as usize] = Instruction {
+    instructions[opcode(H_REG, A_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD H, A", &[]);
@@ -309,7 +305,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_H_B as usize] = Instruction {
+    instructions[opcode(H_REG, B_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD H, B", &[]);
@@ -317,7 +313,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_H_C as usize] = Instruction {
+    instructions[opcode(H_REG, C_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD H, C", &[]);
@@ -325,7 +321,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_H_D as usize] = Instruction {
+    instructions[opcode(H_REG, D_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD H, D", &[]);
@@ -333,7 +329,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_H_E as usize] = Instruction {
+    instructions[opcode(H_REG, E_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD H, E", &[]);
@@ -341,7 +337,15 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_H_L as usize] = Instruction {
+    instructions[opcode(H_REG, H_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD H, H", &[]);
+            cpu.registers.set_h(cpu.registers.get_h());
+            Ok(())
+        },
+    };
+    instructions[opcode(H_REG, L_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD H, L", &[]);
@@ -350,7 +354,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         },
     };
 
-    instructions[LD_L_A as usize] = Instruction {
+    instructions[opcode(L_REG, A_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD L, A", &[]);
@@ -358,7 +362,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_L_B as usize] = Instruction {
+    instructions[opcode(L_REG, B_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD L, B", &[]);
@@ -366,7 +370,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_L_C as usize] = Instruction {
+    instructions[opcode(L_REG, C_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD L, C", &[]);
@@ -374,7 +378,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_L_D as usize] = Instruction {
+    instructions[opcode(L_REG, D_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD L, D", &[]);
@@ -382,7 +386,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_L_E as usize] = Instruction {
+    instructions[opcode(L_REG, E_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD L, E", &[]);
@@ -390,7 +394,7 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
-    instructions[LD_L_H as usize] = Instruction {
+    instructions[opcode(L_REG, H_REG)] = Instruction {
         cycles: LD_R_R_CYCLES,
         execute: |cpu, _, logger| {
             logger("LD L, H", &[]);
@@ -398,4 +402,433 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
             Ok(())
         },
     };
+    instructions[opcode(L_REG, L_REG)] = Instruction {
+        cycles: LD_R_R_CYCLES,
+        execute: |cpu, _, logger| {
+            logger("LD L, L", &[]);
+            cpu.registers.set_l(cpu.registers.get_l());
+            Ok(())
+        },
+    };
+}
+
+#[cfg(test)]
+mod test {
+    use crate::bus::Bus;
+    use crate::z80::instructions::ld_r_r::{build_ld_r_r_set, opcode};
+    use crate::z80::instructions::registers::{A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG};
+    use crate::z80::instructions::UNSUPPORTED_INSTRUCTION;
+    use crate::z80::Cpu;
+
+    #[test]
+    fn test_opcode() {
+        const A: u8 = 0b111;
+        const B: u8 = 0b000;
+        assert_eq!(opcode(A, B), 0x78);
+    }
+
+    fn create_test_cpu() -> Cpu {
+        Cpu::new()
+    }
+
+    fn noop_logger(_: &str, _: &[&str]) {}
+
+    fn execute_instruction(cpu: &mut Cpu, opcode: usize) {
+        let mut instructions = [UNSUPPORTED_INSTRUCTION; 256];
+        build_ld_r_r_set(&mut instructions);
+        let bus = Bus::new();
+        (instructions[opcode].execute)(cpu, &bus, &noop_logger).unwrap();
+    }
+
+    #[test]
+    fn test_ld_a_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x42);
+        execute_instruction(&mut cpu, opcode(A_REG, B_REG));
+        assert_eq!(cpu.registers.get_a(), 0x42);
+    }
+
+    #[test]
+    fn test_ld_a_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x43);
+        execute_instruction(&mut cpu, opcode(A_REG, C_REG));
+        assert_eq!(cpu.registers.get_a(), 0x43);
+    }
+
+    #[test]
+    fn test_ld_a_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x44);
+        execute_instruction(&mut cpu, opcode(A_REG, D_REG));
+        assert_eq!(cpu.registers.get_a(), 0x44);
+    }
+
+    #[test]
+    fn test_ld_a_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x45);
+        execute_instruction(&mut cpu, opcode(A_REG, E_REG));
+        assert_eq!(cpu.registers.get_a(), 0x45);
+    }
+
+    #[test]
+    fn test_ld_a_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x46);
+        execute_instruction(&mut cpu, opcode(A_REG, H_REG));
+        assert_eq!(cpu.registers.get_a(), 0x46);
+    }
+
+    #[test]
+    fn test_ld_a_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x47);
+        execute_instruction(&mut cpu, opcode(A_REG, L_REG));
+        assert_eq!(cpu.registers.get_a(), 0x47);
+    }
+
+    #[test]
+    fn test_ld_b_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x48);
+        execute_instruction(&mut cpu, opcode(B_REG, A_REG));
+        assert_eq!(cpu.registers.get_b(), 0x48);
+    }
+
+    #[test]
+    fn test_ld_b_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x49);
+        execute_instruction(&mut cpu, opcode(B_REG, C_REG));
+        assert_eq!(cpu.registers.get_b(), 0x49);
+    }
+
+    #[test]
+    fn test_ld_b_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x4A);
+        execute_instruction(&mut cpu, opcode(B_REG, D_REG));
+        assert_eq!(cpu.registers.get_b(), 0x4A);
+    }
+
+    #[test]
+    fn test_ld_b_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x4B);
+        execute_instruction(&mut cpu, opcode(B_REG, E_REG));
+        assert_eq!(cpu.registers.get_b(), 0x4B);
+    }
+
+    #[test]
+    fn test_ld_b_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x4C);
+        execute_instruction(&mut cpu, opcode(B_REG, H_REG));
+        assert_eq!(cpu.registers.get_b(), 0x4C);
+    }
+
+    #[test]
+    fn test_ld_b_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x4D);
+        execute_instruction(&mut cpu, opcode(B_REG, L_REG));
+        assert_eq!(cpu.registers.get_b(), 0x4D);
+    }
+
+    #[test]
+    fn test_ld_c_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x4E);
+        execute_instruction(&mut cpu, opcode(C_REG, A_REG));
+        assert_eq!(cpu.registers.get_c(), 0x4E);
+    }
+
+    #[test]
+    fn test_ld_c_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x4F);
+        execute_instruction(&mut cpu, opcode(C_REG, B_REG));
+        assert_eq!(cpu.registers.get_c(), 0x4F);
+    }
+
+    #[test]
+    fn test_ld_c_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x50);
+        execute_instruction(&mut cpu, opcode(C_REG, D_REG));
+        assert_eq!(cpu.registers.get_c(), 0x50);
+    }
+
+    #[test]
+    fn test_ld_c_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x51);
+        execute_instruction(&mut cpu, opcode(C_REG, E_REG));
+        assert_eq!(cpu.registers.get_c(), 0x51);
+    }
+
+    #[test]
+    fn test_ld_c_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x52);
+        execute_instruction(&mut cpu, opcode(C_REG, H_REG));
+        assert_eq!(cpu.registers.get_c(), 0x52);
+    }
+
+    #[test]
+    fn test_ld_c_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x53);
+        execute_instruction(&mut cpu, opcode(C_REG, L_REG));
+        assert_eq!(cpu.registers.get_c(), 0x53);
+    }
+
+    #[test]
+    fn test_ld_d_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x54);
+        execute_instruction(&mut cpu, opcode(D_REG, A_REG));
+        assert_eq!(cpu.registers.get_d(), 0x54);
+    }
+
+    #[test]
+    fn test_ld_d_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x55);
+        execute_instruction(&mut cpu, opcode(D_REG, B_REG));
+        assert_eq!(cpu.registers.get_d(), 0x55);
+    }
+
+    #[test]
+    fn test_ld_d_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x56);
+        execute_instruction(&mut cpu, opcode(D_REG, C_REG));
+        assert_eq!(cpu.registers.get_d(), 0x56);
+    }
+
+    #[test]
+    fn test_ld_d_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x57);
+        execute_instruction(&mut cpu, opcode(D_REG, E_REG));
+        assert_eq!(cpu.registers.get_d(), 0x57);
+    }
+
+    #[test]
+    fn test_ld_d_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x58);
+        execute_instruction(&mut cpu, opcode(D_REG, H_REG));
+        assert_eq!(cpu.registers.get_d(), 0x58);
+    }
+
+    #[test]
+    fn test_ld_d_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x59);
+        execute_instruction(&mut cpu, opcode(D_REG, L_REG));
+        assert_eq!(cpu.registers.get_d(), 0x59);
+    }
+
+    #[test]
+    fn test_ld_e_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x5A);
+        execute_instruction(&mut cpu, opcode(E_REG, A_REG));
+        assert_eq!(cpu.registers.get_e(), 0x5A);
+    }
+
+    #[test]
+    fn test_ld_e_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x5B);
+        execute_instruction(&mut cpu, opcode(E_REG, B_REG));
+        assert_eq!(cpu.registers.get_e(), 0x5B);
+    }
+
+    #[test]
+    fn test_ld_e_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x5C);
+        execute_instruction(&mut cpu, opcode(E_REG, C_REG));
+        assert_eq!(cpu.registers.get_e(), 0x5C);
+    }
+
+    #[test]
+    fn test_ld_e_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x5D);
+        execute_instruction(&mut cpu, opcode(E_REG, D_REG));
+        assert_eq!(cpu.registers.get_e(), 0x5D);
+    }
+
+    #[test]
+    fn test_ld_e_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x5E);
+        execute_instruction(&mut cpu, opcode(E_REG, H_REG));
+        assert_eq!(cpu.registers.get_e(), 0x5E);
+    }
+
+    #[test]
+    fn test_ld_e_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x5F);
+        execute_instruction(&mut cpu, opcode(E_REG, L_REG));
+        assert_eq!(cpu.registers.get_e(), 0x5F);
+    }
+
+    #[test]
+    fn test_ld_h_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x60);
+        execute_instruction(&mut cpu, opcode(H_REG, A_REG));
+        assert_eq!(cpu.registers.get_h(), 0x60);
+    }
+
+    #[test]
+    fn test_ld_h_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x61);
+        execute_instruction(&mut cpu, opcode(H_REG, B_REG));
+        assert_eq!(cpu.registers.get_h(), 0x61);
+    }
+
+    #[test]
+    fn test_ld_h_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x62);
+        execute_instruction(&mut cpu, opcode(H_REG, C_REG));
+        assert_eq!(cpu.registers.get_h(), 0x62);
+    }
+
+    #[test]
+    fn test_ld_h_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x63);
+        execute_instruction(&mut cpu, opcode(H_REG, D_REG));
+        assert_eq!(cpu.registers.get_h(), 0x63);
+    }
+
+    #[test]
+    fn test_ld_h_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x64);
+        execute_instruction(&mut cpu, opcode(H_REG, E_REG));
+        assert_eq!(cpu.registers.get_h(), 0x64);
+    }
+
+    #[test]
+    fn test_ld_h_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x65);
+        execute_instruction(&mut cpu, opcode(H_REG, L_REG));
+        assert_eq!(cpu.registers.get_h(), 0x65);
+    }
+
+    #[test]
+    fn test_ld_l_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x66);
+        execute_instruction(&mut cpu, opcode(L_REG, A_REG));
+        assert_eq!(cpu.registers.get_l(), 0x66);
+    }
+
+    #[test]
+    fn test_ld_l_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x67);
+        execute_instruction(&mut cpu, opcode(L_REG, B_REG));
+        assert_eq!(cpu.registers.get_l(), 0x67);
+    }
+
+    #[test]
+    fn test_ld_l_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x68);
+        execute_instruction(&mut cpu, opcode(L_REG, C_REG));
+        assert_eq!(cpu.registers.get_l(), 0x68);
+    }
+
+    #[test]
+    fn test_ld_l_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x69);
+        execute_instruction(&mut cpu, opcode(L_REG, D_REG));
+        assert_eq!(cpu.registers.get_l(), 0x69);
+    }
+
+    #[test]
+    fn test_ld_l_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x6A);
+        execute_instruction(&mut cpu, opcode(L_REG, E_REG));
+        assert_eq!(cpu.registers.get_l(), 0x6A);
+    }
+
+    #[test]
+    fn test_ld_l_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x6B);
+        execute_instruction(&mut cpu, opcode(L_REG, H_REG));
+        assert_eq!(cpu.registers.get_l(), 0x6B);
+    }
+
+    #[test]
+    fn test_ld_a_a() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_a(0x6C);
+        execute_instruction(&mut cpu, opcode(A_REG, A_REG));
+        assert_eq!(cpu.registers.get_a(), 0x6C);
+    }
+
+    #[test]
+    fn test_ld_b_b() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_b(0x6D);
+        execute_instruction(&mut cpu, opcode(B_REG, B_REG));
+        assert_eq!(cpu.registers.get_b(), 0x6D);
+    }
+
+    #[test]
+    fn test_ld_c_c() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_c(0x6E);
+        execute_instruction(&mut cpu, opcode(C_REG, C_REG));
+        assert_eq!(cpu.registers.get_c(), 0x6E);
+    }
+
+    #[test]
+    fn test_ld_d_d() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_d(0x6F);
+        execute_instruction(&mut cpu, opcode(D_REG, D_REG));
+        assert_eq!(cpu.registers.get_d(), 0x6F);
+    }
+
+    #[test]
+    fn test_ld_e_e() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_e(0x70);
+        execute_instruction(&mut cpu, opcode(E_REG, E_REG));
+        assert_eq!(cpu.registers.get_e(), 0x70);
+    }
+
+    #[test]
+    fn test_ld_h_h() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_h(0x71);
+        execute_instruction(&mut cpu, opcode(H_REG, H_REG));
+        assert_eq!(cpu.registers.get_h(), 0x71);
+    }
+
+    #[test]
+    fn test_ld_l_l() {
+        let mut cpu = create_test_cpu();
+        cpu.registers.set_l(0x72);
+        execute_instruction(&mut cpu, opcode(L_REG, L_REG));
+        assert_eq!(cpu.registers.get_l(), 0x72);
+    }
 }

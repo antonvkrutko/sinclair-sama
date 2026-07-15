@@ -2,6 +2,7 @@ pub mod ld_r_hl;
 mod ld_r_ix_d;
 mod ld_r_n;
 mod ld_r_r;
+pub mod registers;
 
 use crate::bus::Bus;
 use crate::z80::instructions::ld_r_hl::build_ld_r_hl_set;
