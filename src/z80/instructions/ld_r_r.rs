@@ -1,11 +1,12 @@
 use crate::z80::instructions::registers::{A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG};
 use crate::z80::instructions::{Cycles, Instruction};
-const fn opcode(reg_r: u8, reg_r_: u8) -> usize {
-    const LD_R_R_OPCODE_PREFIX: u8 = 0x01;
-    ((LD_R_R_OPCODE_PREFIX << 6) | (reg_r << 3) | reg_r_) as usize
-}
 
 // LR r, r'
+const fn opcode(reg_r: u8, reg_r_: u8) -> usize {
+    const LD_R_R_OPCODE_MASK: u8 = 0x40;
+    (LD_R_R_OPCODE_MASK | (reg_r << 3) | reg_r_) as usize
+}
+
 pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
     const LD_R_R_CYCLES: Cycles = Cycles {
         m_cycles: 1,

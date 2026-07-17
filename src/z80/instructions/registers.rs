@@ -1,4 +1,4 @@
-pub const A_REG: u8 = 0x06;
+pub const A_REG: u8 = 0x07;
 pub const B_REG: u8 = 0x00;
 pub const C_REG: u8 = 0x01;
 pub const D_REG: u8 = 0x02;
