@@ -1,10 +1,15 @@
-use crate::z80::instructions::registers::{A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG};
+use crate::z80::CycleError;
+use crate::z80::instructions::InstructionError::UnsupportedRegister;
+use crate::z80::instructions::constants::{
+    A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG, R_REGS,
+};
+use crate::z80::instructions::utils::{r_prime_reg_from_opcode, set_r_register_from_opcode};
 use crate::z80::instructions::{Cycles, Instruction};
 
 // LR r, r'
-const fn opcode(reg_r: u8, reg_r_: u8) -> usize {
+const fn opcode(reg_r: u8, reg_r_prime: u8) -> usize {
     const LD_R_R_OPCODE_MASK: u8 = 0x40;
-    (LD_R_R_OPCODE_MASK | (reg_r << 3) | reg_r_) as usize
+    (LD_R_R_OPCODE_MASK | (reg_r << 3) | reg_r_prime) as usize
 }
 
 pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
@@ -13,413 +18,44 @@ pub const fn build_ld_r_r_set(instructions: &mut [Instruction]) {
         t_states: 4,
     };
 
-    instructions[opcode(A_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, A", &[]);
-            cpu.registers.set_a(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(A_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, B", &[]);
-            cpu.registers.set_a(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(A_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, C", &[]);
-            cpu.registers.set_a(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(A_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, D", &[]);
-            cpu.registers.set_a(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(A_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, E", &[]);
-            cpu.registers.set_a(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(A_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, H", &[]);
-            cpu.registers.set_a(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(A_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD A, L", &[]);
-            cpu.registers.set_a(cpu.registers.get_l());
-            Ok(())
-        },
-    };
+    let mut reg_idx = 0;
+    while reg_idx < R_REGS.len() {
+        let mut reg_prime_idx = 0;
+        while reg_prime_idx < R_REGS.len() {
+            let reg = R_REGS[reg_idx];
+            let reg_prime = R_REGS[reg_prime_idx];
 
-    instructions[opcode(B_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, A", &[]);
-            cpu.registers.set_b(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(B_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, B", &[]);
-            cpu.registers.set_b(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(B_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, C", &[]);
-            cpu.registers.set_b(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(B_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, D", &[]);
-            cpu.registers.set_b(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(B_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, E", &[]);
-            cpu.registers.set_b(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(B_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, H", &[]);
-            cpu.registers.set_b(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(B_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD B, L", &[]);
-            cpu.registers.set_b(cpu.registers.get_l());
-            Ok(())
-        },
-    };
-
-    instructions[opcode(C_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, A", &[]);
-            cpu.registers.set_c(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(C_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, B", &[]);
-            cpu.registers.set_c(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(C_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, C", &[]);
-            cpu.registers.set_c(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(C_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, D", &[]);
-            cpu.registers.set_c(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(C_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, E", &[]);
-            cpu.registers.set_c(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(C_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, H", &[]);
-            cpu.registers.set_c(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(C_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD C, L", &[]);
-            cpu.registers.set_c(cpu.registers.get_l());
-            Ok(())
-        },
-    };
-
-    instructions[opcode(D_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, A", &[]);
-            cpu.registers.set_d(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(D_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, B", &[]);
-            cpu.registers.set_d(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(D_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, C", &[]);
-            cpu.registers.set_d(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(D_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, D", &[]);
-            cpu.registers.set_d(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(D_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, E", &[]);
-            cpu.registers.set_d(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(D_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, H", &[]);
-            cpu.registers.set_d(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(D_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD D, L", &[]);
-            cpu.registers.set_d(cpu.registers.get_l());
-            Ok(())
-        },
-    };
-
-    instructions[opcode(E_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, A", &[]);
-            cpu.registers.set_e(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(E_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, B", &[]);
-            cpu.registers.set_e(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(E_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, C", &[]);
-            cpu.registers.set_e(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(E_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, D", &[]);
-            cpu.registers.set_e(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(E_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, E", &[]);
-            cpu.registers.set_e(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(E_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, H", &[]);
-            cpu.registers.set_e(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(E_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD E, L", &[]);
-            cpu.registers.set_e(cpu.registers.get_l());
-            Ok(())
-        },
-    };
-
-    instructions[opcode(H_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, A", &[]);
-            cpu.registers.set_h(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(H_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, B", &[]);
-            cpu.registers.set_h(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(H_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, C", &[]);
-            cpu.registers.set_h(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(H_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, D", &[]);
-            cpu.registers.set_h(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(H_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, E", &[]);
-            cpu.registers.set_h(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(H_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, H", &[]);
-            cpu.registers.set_h(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(H_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD H, L", &[]);
-            cpu.registers.set_h(cpu.registers.get_l());
-            Ok(())
-        },
-    };
-
-    instructions[opcode(L_REG, A_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, A", &[]);
-            cpu.registers.set_l(cpu.registers.get_a());
-            Ok(())
-        },
-    };
-    instructions[opcode(L_REG, B_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, B", &[]);
-            cpu.registers.set_l(cpu.registers.get_b());
-            Ok(())
-        },
-    };
-    instructions[opcode(L_REG, C_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, C", &[]);
-            cpu.registers.set_l(cpu.registers.get_c());
-            Ok(())
-        },
-    };
-    instructions[opcode(L_REG, D_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, D", &[]);
-            cpu.registers.set_l(cpu.registers.get_d());
-            Ok(())
-        },
-    };
-    instructions[opcode(L_REG, E_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, E", &[]);
-            cpu.registers.set_l(cpu.registers.get_e());
-            Ok(())
-        },
-    };
-    instructions[opcode(L_REG, H_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, H", &[]);
-            cpu.registers.set_l(cpu.registers.get_h());
-            Ok(())
-        },
-    };
-    instructions[opcode(L_REG, L_REG)] = Instruction {
-        cycles: LD_R_R_CYCLES,
-        execute: |cpu, _, logger| {
-            logger("LD L, L", &[]);
-            cpu.registers.set_l(cpu.registers.get_l());
-            Ok(())
-        },
-    };
+            instructions[opcode(reg, reg_prime)] = Instruction {
+                cycles: LD_R_R_CYCLES,
+                execute: |context, cpu, _, logger| {
+                    let value = match r_prime_reg_from_opcode(context.opcode) {
+                        A_REG => Ok(cpu.registers.get_a()),
+                        B_REG => Ok(cpu.registers.get_b()),
+                        C_REG => Ok(cpu.registers.get_c()),
+                        D_REG => Ok(cpu.registers.get_d()),
+                        E_REG => Ok(cpu.registers.get_e()),
+                        H_REG => Ok(cpu.registers.get_h()),
+                        L_REG => Ok(cpu.registers.get_l()),
+                        _ => Err(CycleError::UnsupportedInstruction(UnsupportedRegister)),
+                    }?;
+                    let result = set_r_register_from_opcode(context.opcode, value, cpu);
+                    logger("LD r, r'", &[]);
+                    result
+                },
+            };
+            reg_prime_idx += 1;
+        }
+        reg_idx += 1;
+    }
 }
 
 #[cfg(test)]
 mod test {
     use crate::bus::Bus;
-    use crate::z80::instructions::ld_r_r::{build_ld_r_r_set, opcode};
-    use crate::z80::instructions::registers::{A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG};
-    use crate::z80::instructions::UNSUPPORTED_INSTRUCTION;
     use crate::z80::Cpu;
+    use crate::z80::instructions::constants::{A_REG, B_REG, C_REG, D_REG, E_REG, H_REG, L_REG};
+    use crate::z80::instructions::ld_r_r::{build_ld_r_r_set, opcode};
+    use crate::z80::instructions::{Context, UNSUPPORTED_INSTRUCTION};
 
     #[test]
     fn test_opcode() {
@@ -438,7 +74,10 @@ mod test {
         let mut instructions = [UNSUPPORTED_INSTRUCTION; 256];
         build_ld_r_r_set(&mut instructions);
         let bus = Bus::new();
-        (instructions[opcode].execute)(cpu, &bus, &noop_logger).unwrap();
+        let context = Context {
+            opcode: opcode as u8,
+        };
+        (instructions[opcode].execute)(&context, cpu, &bus, &noop_logger).unwrap();
     }
 
     #[test]

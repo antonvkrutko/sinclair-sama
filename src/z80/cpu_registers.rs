@@ -120,6 +120,10 @@ impl CpuRegisters {
         self.hl
     }
 
+    pub fn get_ix(&self) -> u16 {
+        self.ix
+    }
+
     pub fn dump(&self) {
         println!("CpuRegisters dump state:\n{self}");
     }

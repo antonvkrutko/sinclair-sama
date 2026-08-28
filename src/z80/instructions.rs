@@ -1,10 +1,12 @@
-pub mod ld_r_hl;
+mod constants;
+mod ld_r_hl;
 mod ld_r_ix_d;
 mod ld_r_n;
 mod ld_r_r;
-pub mod registers;
+mod utils;
 
 use crate::bus::Bus;
+use crate::z80::instructions::InstructionError::UnsupportedOpcode;
 use crate::z80::instructions::ld_r_hl::build_ld_r_hl_set;
 use crate::z80::instructions::ld_r_ix_d::build_ld_r_ix_d_set;
 use crate::z80::instructions::ld_r_n::build_ld_r_n_set;
@@ -14,6 +16,12 @@ use crate::z80::{Cpu, CycleError};
 
 type Logger = dyn Fn(&str, &[&str]);
 
+#[derive(Debug)]
+pub enum InstructionError {
+    UnsupportedOpcode,
+    UnsupportedRegister,
+}
+
 #[derive(Copy, Clone)]
 pub struct Cycles {
     m_cycles: u8,
@@ -22,30 +30,44 @@ pub struct Cycles {
 
 pub struct Instruction {
     cycles: Cycles,
-    execute: fn(&mut Cpu, &Bus, &Logger) -> Result<(), CycleError>,
+    execute: fn(context: &Context, &mut Cpu, &Bus, &Logger) -> Result<(), CycleError>,
+}
+
+pub struct Context {
+    opcode: u8,
+}
+
+pub struct InstructionData {
+    instruction: &'static Instruction,
+    context: Context,
+}
+
+impl InstructionData {
+    pub fn run_with_context(&self, cpu: &mut Cpu, bus: &Bus) -> Result<Cycles, CycleError> {
+        self.instruction.run(&self.context, cpu, bus)
+    }
 }
 
 impl Instruction {
-    pub fn decode(
-        opcode: u8,
-        cpu: &mut Cpu,
-        bus: &Bus,
-    ) -> Result<&'static Instruction, CycleError> {
+    pub fn decode(opcode: u8, cpu: &mut Cpu, bus: &Bus) -> Result<InstructionData, CycleError> {
         let (lookup_map, opcode) = if opcode == DD_OPCODE {
             let dd_opcode = bus.read_from_pc(cpu)?;
             (&INSTRUCTIONS_DD, dd_opcode)
         } else {
             (&INSTRUCTIONS, opcode)
         };
-        Ok(&lookup_map[usize::from(opcode)])
+        Ok(InstructionData {
+            instruction: &lookup_map[usize::from(opcode)],
+            context: Context { opcode },
+        })
     }
 
-    pub fn run(&self, cpu: &mut Cpu, bus: &Bus) -> Result<Cycles, CycleError> {
+    fn run(&self, context: &Context, cpu: &mut Cpu, bus: &Bus) -> Result<Cycles, CycleError> {
         let logger = |mnemonic: &str, args: &[&str]| {
             println!("{} {}", mnemonic, args.join(" "));
         };
 
-        (self.execute)(cpu, bus, &logger)?;
+        (self.execute)(context, cpu, bus, &logger)?;
         Ok(self.cycles)
     }
 }
@@ -57,7 +79,7 @@ const UNSUPPORTED_INSTRUCTION: Instruction = Instruction {
         m_cycles: 0,
         t_states: 0,
     },
-    execute: |_, _, _| Err(CycleError::UnsupportedInstruction),
+    execute: |_, _, _, _| Err(CycleError::UnsupportedInstruction(UnsupportedOpcode)),
 };
 
 const fn build_instruction_map() -> [Instruction; 256] {
@@ -72,7 +94,7 @@ const fn build_instruction_map() -> [Instruction; 256] {
             m_cycles: 1,
             t_states: 4,
         },
-        execute: |_, _, logger| {
+        execute: |_, _, _, logger| {
             logger("NOP", &[]);
             Ok(())
         },
