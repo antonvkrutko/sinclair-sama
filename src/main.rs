@@ -2,10 +2,14 @@ mod bus;
 mod z80;
 mod utils;
 
+use log::{debug, error, info};
 use bus::Bus;
 use z80::Cpu;
 
 fn main() {
+    env_logger::init();
+    info!("Starting up...");
+
     let mut cpu = Cpu::new();
     let mut bus = Bus::new();
 
@@ -17,17 +21,16 @@ fn main() {
         0xFF
     ]);
 
-    println!("Loaded rom");
+    debug!("Loaded rom:");
     bus.dump_rom();
 
     loop {
         match cpu.cycle(&bus) {
             Ok(_) => {
                 cpu.dump();
-                println!("\n")
             }
             Err(cycle_error) => {
-                println!("CPU cycle error: {:?}, exiting...", cycle_error);
+                error!("CPU cycle error: {:?}, exiting...", cycle_error);
                 break;
             }
         }

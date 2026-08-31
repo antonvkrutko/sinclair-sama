@@ -13,8 +13,7 @@ use crate::z80::instructions::ld_r_n::build_ld_r_n_set;
 use crate::z80::instructions::ld_r_r::build_ld_r_r_set;
 use crate::z80::utils::ReadableFromPc;
 use crate::z80::{Cpu, CycleError};
-
-type Logger = dyn Fn(&str, &[&str]);
+use log::debug;
 
 #[derive(Debug)]
 pub enum InstructionError {
@@ -30,7 +29,7 @@ pub struct Cycles {
 
 pub struct Instruction {
     cycles: Cycles,
-    execute: fn(context: &Context, &mut Cpu, &Bus, &Logger) -> Result<(), CycleError>,
+    execute: for<'a> fn(context: &'a Context, &mut Cpu, &Bus) -> Result<&'a Context, CycleError>,
 }
 
 pub struct Context {
@@ -63,11 +62,7 @@ impl Instruction {
     }
 
     fn run(&self, context: &Context, cpu: &mut Cpu, bus: &Bus) -> Result<Cycles, CycleError> {
-        let logger = |mnemonic: &str, args: &[&str]| {
-            println!("{} {}", mnemonic, args.join(" "));
-        };
-
-        (self.execute)(context, cpu, bus, &logger)?;
+        (self.execute)(context, cpu, bus)?;
         Ok(self.cycles)
     }
 }
@@ -79,7 +74,7 @@ const UNSUPPORTED_INSTRUCTION: Instruction = Instruction {
         m_cycles: 0,
         t_states: 0,
     },
-    execute: |_, _, _, _| Err(CycleError::UnsupportedInstruction(UnsupportedOpcode)),
+    execute: |_, _, _| Err(CycleError::UnsupportedInstruction(UnsupportedOpcode)),
 };
 
 const fn build_instruction_map() -> [Instruction; 256] {
@@ -94,9 +89,9 @@ const fn build_instruction_map() -> [Instruction; 256] {
             m_cycles: 1,
             t_states: 4,
         },
-        execute: |_, _, _, logger| {
-            logger("NOP", &[]);
-            Ok(())
+        execute: |context, _, _| {
+            debug!("NOP");
+            Ok(context)
         },
     };
     instructions

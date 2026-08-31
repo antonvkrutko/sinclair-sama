@@ -1,3 +1,4 @@
+use log::{debug, info};
 use crate::bus::BusError::{AccessError, AddressOutOfRange};
 use crate::bus::Region::{Ram, Rom};
 
@@ -83,7 +84,7 @@ impl Bus {
                 let byte_to_print = self.rom[address_line * bytes_in_row + byte];
                 address_line_string.push_str(&format!(" {:02X}", byte_to_print));
             }
-            println!("{address_line_string}");
+            debug!("{address_line_string}");
         }
     }
 }

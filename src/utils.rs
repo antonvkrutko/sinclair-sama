@@ -7,6 +7,6 @@ where
     T: std::fmt::UpperHex,
 {
     fn to_hex_string(&self) -> String {
-        format!("0x{:0X}", self)
+        format!("0x{:02X}", self)
     }
 }

@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use log::debug;
 
 pub struct CpuRegisters {
     // general purpose registers
@@ -125,7 +126,7 @@ impl CpuRegisters {
     }
 
     pub fn dump(&self) {
-        println!("CpuRegisters dump state:\n{self}");
+        debug!("CpuRegisters dump state:\n{self}");
     }
 }
 
