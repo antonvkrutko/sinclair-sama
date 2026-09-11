@@ -5,7 +5,7 @@ mod ld_r_n;
 mod ld_r_r;
 mod utils;
 
-use crate::bus::Bus;
+use crate::bus::{Bus, Readable};
 use crate::z80::instructions::InstructionError::UnsupportedOpcode;
 use crate::z80::instructions::ld_r_hl::build_ld_r_hl_set;
 use crate::z80::instructions::ld_r_ix_d::build_ld_r_ix_d_set;
@@ -27,9 +27,9 @@ pub struct Cycles {
     t_states: u8,
 }
 
-pub struct Instruction {
+pub struct Instruction<B> where B: Readable + ReadableFromPc {
     cycles: Cycles,
-    execute: for<'a> fn(context: &'a Context, &mut Cpu, &Bus) -> Result<&'a Context, CycleError>,
+    execute: for<'a> fn(context: &'a Context, &mut Cpu, &B) -> Result<&'a Context, CycleError>,
 }
 
 pub struct Context {
@@ -37,7 +37,7 @@ pub struct Context {
 }
 
 pub struct InstructionData {
-    instruction: &'static Instruction,
+    instruction: &'static Instruction<Bus>,
     context: Context,
 }
 
@@ -47,7 +47,7 @@ impl InstructionData {
     }
 }
 
-impl Instruction {
+impl Instruction<Bus> {
     pub fn decode(opcode: u8, cpu: &mut Cpu, bus: &Bus) -> Result<InstructionData, CycleError> {
         let (lookup_map, opcode) = if opcode == DD_OPCODE {
             let dd_opcode = bus.read_from_pc(cpu)?;
@@ -69,7 +69,7 @@ impl Instruction {
 
 const NOP: u8 = 0x00;
 
-const UNSUPPORTED_INSTRUCTION: Instruction = Instruction {
+const UNSUPPORTED_INSTRUCTION: Instruction<Bus> = Instruction {
     cycles: Cycles {
         m_cycles: 0,
         t_states: 0,
@@ -77,7 +77,7 @@ const UNSUPPORTED_INSTRUCTION: Instruction = Instruction {
     execute: |_, _, _| Err(CycleError::UnsupportedInstruction(UnsupportedOpcode)),
 };
 
-const fn build_instruction_map() -> [Instruction; 256] {
+const fn build_instruction_map() -> [Instruction<Bus>; 256] {
     let mut instructions = [UNSUPPORTED_INSTRUCTION; 256];
 
     build_ld_r_r_set(&mut instructions);
@@ -97,7 +97,7 @@ const fn build_instruction_map() -> [Instruction; 256] {
     instructions
 }
 
-const fn build_dd_instruction_map() -> [Instruction; 256] {
+const fn build_dd_instruction_map() -> [Instruction<Bus>; 256] {
     let mut instructions = [UNSUPPORTED_INSTRUCTION; 256];
 
     build_ld_r_ix_d_set(&mut instructions);
@@ -105,7 +105,7 @@ const fn build_dd_instruction_map() -> [Instruction; 256] {
     instructions
 }
 
-const INSTRUCTIONS: [Instruction; 256] = build_instruction_map();
-const INSTRUCTIONS_DD: [Instruction; 256] = build_dd_instruction_map();
+const INSTRUCTIONS: [Instruction<Bus>; 256] = build_instruction_map();
+const INSTRUCTIONS_DD: [Instruction<Bus>; 256] = build_dd_instruction_map();
 
 const DD_OPCODE: u8 = 0xDD;

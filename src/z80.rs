@@ -1,4 +1,4 @@
-use crate::bus::{Bus, BusError};
+use crate::bus::{Bus, BusError, Readable};
 use crate::z80::instructions::{Instruction, InstructionData, InstructionError};
 use cpu_registers::CpuRegisters;
 

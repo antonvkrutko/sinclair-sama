@@ -5,11 +5,12 @@ use crate::z80::instructions::utils::{r_reg_opcode, set_r_register_from_opcode};
 use crate::z80::instructions::{Cycles, Instruction};
 use crate::z80::utils::ReadableFromPc;
 use log::debug;
+use crate::bus::Bus;
 
 // LD r,(IX + d)
 const LR_R_IX_D_OPCODE_MASK: u8 = 0x46;
 
-pub const fn build_ld_r_ix_d_set(instructions: &mut [Instruction]) {
+pub const fn build_ld_r_ix_d_set(instructions: &mut [Instruction<Bus>]) {
     const LD_R_IX_D_CYCLES: Cycles = Cycles {
         m_cycles: 5,
         t_states: 19,
@@ -17,7 +18,7 @@ pub const fn build_ld_r_ix_d_set(instructions: &mut [Instruction]) {
 
     let mut reg_idx = 0;
     while reg_idx < REGS.len() {
-        instructions[r_reg_opcode(&REGS[reg_idx], LR_R_IX_D_OPCODE_MASK)] = Instruction {
+        instructions[r_reg_opcode(REGS[reg_idx], LR_R_IX_D_OPCODE_MASK)] = Instruction {
             cycles: LD_R_IX_D_CYCLES,
             execute: |context, cpu, bus| {
                 let displacement = bus.read_from_pc(cpu)? as i8;

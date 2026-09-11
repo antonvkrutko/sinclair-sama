@@ -1,6 +1,6 @@
 use crate::z80::instructions::InstructionError::UnsupportedRegister;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Reg {
     A,
     B,
@@ -30,7 +30,7 @@ impl TryFrom<u8> for Reg {
     }
 }
 
-pub const fn reg_code_from(value: &Reg) -> u8 {
+pub const fn reg_code_from(value: Reg) -> u8 {
     match value {
         Reg::A => A_REG,
         Reg::B => B_REG,

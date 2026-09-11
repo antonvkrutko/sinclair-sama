@@ -6,7 +6,7 @@ const LD_R_OPCODE_SHIFT: u8 = 3;
 
 const R_REG_OPCODE_MASK: u8 = 0x07;
 
-pub const fn r_reg_opcode(reg: &Reg, opcode_mask: u8) -> usize {
+pub const fn r_reg_opcode(reg: Reg, opcode_mask: u8) -> usize {
     let reg_r = reg_code_from(reg);
     (opcode_mask | (reg_r << LD_R_OPCODE_SHIFT)) as usize
 }

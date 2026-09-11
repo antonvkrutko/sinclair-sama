@@ -1,6 +1,6 @@
-use log::{debug, info};
 use crate::bus::BusError::{AccessError, AddressOutOfRange};
 use crate::bus::Region::{Ram, Rom};
+use log::debug;
 
 const ROM_SIZE: usize = 1024;
 const RAM_SIZE: usize = 1024;
@@ -24,15 +24,16 @@ enum Region {
     Ram,
 }
 
-impl Bus {
-    pub fn new() -> Self {
-        Bus {
-            rom: [0; ROM_SIZE],
-            ram: [0; RAM_SIZE],
-        }
-    }
+pub trait Readable {
+    fn read(&self, addr: u16) -> Result<u8, BusError>;
+}
 
-    pub fn read(&self, addr: u16) -> Result<u8, BusError> {
+pub trait Writable {
+    fn write(&mut self, addr: u16, data: u8) -> Result<(), BusError>;
+}
+
+impl Readable for Bus {
+    fn read(&self, addr: u16) -> Result<u8, BusError> {
         let addr = usize::from(addr);
         let (addr, region) = self.translate_address(addr)?;
         Ok(match region {
@@ -40,8 +41,10 @@ impl Bus {
             Ram => self.ram[addr],
         })
     }
+}
 
-    pub fn write(&mut self, addr: u16, data: u8) -> Result<(), BusError> {
+impl Writable for Bus {
+    fn write(&mut self, addr: u16, data: u8) -> Result<(), BusError> {
         let addr = usize::from(addr);
         let (addr, region) = self.translate_address(addr)?;
         match region {
@@ -50,6 +53,15 @@ impl Bus {
                 self.ram[addr] = data;
                 Ok(())
             }
+        }
+    }
+}
+
+impl Bus {
+    pub fn new() -> Self {
+        Bus {
+            rom: [0; ROM_SIZE],
+            ram: [0; RAM_SIZE],
         }
     }
 
