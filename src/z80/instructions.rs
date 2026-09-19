@@ -27,7 +27,10 @@ pub struct Cycles {
     t_states: u8,
 }
 
-pub struct Instruction<B> where B: Readable + ReadableFromPc {
+pub struct Instruction<B>
+where
+    B: Readable,
+{
     cycles: Cycles,
     execute: for<'a> fn(context: &'a Context, &mut Cpu, &B) -> Result<&'a Context, CycleError>,
 }

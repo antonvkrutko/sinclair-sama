@@ -1,11 +1,11 @@
+use crate::bus::Bus;
 use crate::utils::ToHexString;
 use crate::z80::CycleError;
 use crate::z80::instructions::constants::REGS;
 use crate::z80::instructions::utils::{r_reg_opcode, set_r_register_from_opcode};
 use crate::z80::instructions::{Cycles, Instruction};
-use crate::z80::utils::ReadableFromPc;
+use crate::z80::utils::{ReadableFromPc, ReadableInCycle};
 use log::debug;
-use crate::bus::Bus;
 
 // LD r,(IX + d)
 const LR_R_IX_D_OPCODE_MASK: u8 = 0x46;

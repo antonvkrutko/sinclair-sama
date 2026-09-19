@@ -2,6 +2,9 @@ use crate::bus::BusError::{AccessError, AddressOutOfRange};
 use crate::bus::Region::{Ram, Rom};
 use log::debug;
 
+#[cfg(test)]
+pub(crate) mod stubs;
+
 const ROM_SIZE: usize = 1024;
 const RAM_SIZE: usize = 1024;
 

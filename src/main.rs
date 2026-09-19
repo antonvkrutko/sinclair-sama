@@ -1,9 +1,9 @@
 mod bus;
-mod z80;
 mod utils;
+mod z80;
 
-use log::{debug, error, info};
 use bus::Bus;
+use log::{debug, error, info};
 use z80::Cpu;
 
 fn main() {
@@ -13,13 +13,7 @@ fn main() {
     let mut cpu = Cpu::new();
     let mut bus = Bus::new();
 
-    bus.load_rom_raw(&[
-        0x00,
-        0x3E, 0xAF,
-        0x0E, 0xDD,
-        0x06, 0x23,
-        0xFF
-    ]);
+    bus.load_rom_raw(&[0x00, 0x3E, 0xAF, 0x0E, 0xDD, 0x06, 0x23, 0xFF]);
 
     debug!("Loaded rom:");
     bus.dump_rom();

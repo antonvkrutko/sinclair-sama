@@ -1,10 +1,10 @@
+use crate::bus::Bus;
 use crate::utils::ToHexString;
 use crate::z80::CycleError;
 use crate::z80::instructions::constants::{REGS, Reg, reg_code_from};
 use crate::z80::instructions::utils::{r_prime_reg_from_opcode, set_r_register_from_opcode};
 use crate::z80::instructions::{Cycles, Instruction};
 use log::debug;
-use crate::bus::Bus;
 
 // LR r, r'
 const fn opcode(reg: Reg, reg_prime: Reg) -> usize {

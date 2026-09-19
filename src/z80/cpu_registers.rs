@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
 use log::debug;
+use std::fmt::{Display, Formatter};
 
 pub struct CpuRegisters {
     // general purpose registers
