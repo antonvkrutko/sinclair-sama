@@ -121,8 +121,20 @@ impl CpuRegisters {
         self.hl
     }
 
+    pub fn set_hl(&mut self, value: u16) {
+        self.hl = value
+    }
+
     pub fn get_ix(&self) -> u16 {
         self.ix
+    }
+
+    pub fn get_iy(&self) -> u16 {
+        self.iy
+    }
+
+    pub fn set_iy(&mut self, value: u16) {
+        self.iy = value
     }
 
     pub fn dump(&self) {

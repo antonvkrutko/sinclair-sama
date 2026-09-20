@@ -1,6 +1,7 @@
 mod constants;
 mod ld_r_hl;
 mod ld_r_ix_d;
+mod ld_r_iy_d;
 mod ld_r_n;
 mod ld_r_r;
 mod utils;
@@ -9,6 +10,7 @@ use crate::bus::{Bus, Readable};
 use crate::z80::instructions::InstructionError::UnsupportedOpcode;
 use crate::z80::instructions::ld_r_hl::build_ld_r_hl_set;
 use crate::z80::instructions::ld_r_ix_d::build_ld_r_ix_d_set;
+use crate::z80::instructions::ld_r_iy_d::build_ld_r_iy_d_set;
 use crate::z80::instructions::ld_r_n::build_ld_r_n_set;
 use crate::z80::instructions::ld_r_r::build_ld_r_r_set;
 use crate::z80::utils::ReadableFromPc;
@@ -52,11 +54,16 @@ impl InstructionData {
 
 impl Instruction<Bus> {
     pub fn decode(opcode: u8, cpu: &mut Cpu, bus: &Bus) -> Result<InstructionData, CycleError> {
-        let (lookup_map, opcode) = if opcode == DD_OPCODE {
-            let dd_opcode = bus.read_from_pc(cpu)?;
-            (&INSTRUCTIONS_DD, dd_opcode)
-        } else {
-            (&INSTRUCTIONS, opcode)
+        let (lookup_map, opcode) = match opcode {
+            DD_OPCODE => {
+                let dd_opcode = bus.read_from_pc(cpu)?;
+                (&INSTRUCTIONS_DD, dd_opcode)
+            }
+            FD_OPCODE => {
+                let fd_opcode = bus.read_from_pc(cpu)?;
+                (&INSTRUCTIONS_FD, fd_opcode)
+            }
+            _ => (&INSTRUCTIONS, opcode),
         };
         Ok(InstructionData {
             instruction: &lookup_map[usize::from(opcode)],
@@ -108,7 +115,17 @@ const fn build_dd_instruction_map() -> [Instruction<Bus>; 256] {
     instructions
 }
 
+const fn build_fd_instruction_map() -> [Instruction<Bus>; 256] {
+    let mut instructions = [UNSUPPORTED_INSTRUCTION; 256];
+
+    build_ld_r_iy_d_set(&mut instructions);
+
+    instructions
+}
+
 const INSTRUCTIONS: [Instruction<Bus>; 256] = build_instruction_map();
 const INSTRUCTIONS_DD: [Instruction<Bus>; 256] = build_dd_instruction_map();
+const INSTRUCTIONS_FD: [Instruction<Bus>; 256] = build_fd_instruction_map();
 
 const DD_OPCODE: u8 = 0xDD;
+const FD_OPCODE: u8 = 0xFD;
